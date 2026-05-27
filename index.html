@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Horizon UltraCapture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="app-container glass-panel">
+        <nav class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon"></div>
+                <h2>Horizon</h2>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-target="view-capture"><i class='bx bx-camera-movie'></i> Capture</li>
+                <li data-target="view-library"><i class='bx bx-library'></i> Library</li>
+                <li data-target="view-settings"><i class='bx bx-cog'></i> Settings</li>
+            </ul>
+            <div style="margin-top: auto; padding: 20px;">
+                <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid var(--primary-blue); padding: 15px; border-radius: 8px; text-align: center;">
+                    <h4 style="margin-bottom: 8px; font-size: 0.9em;">Get Horizon Pro</h4>
+                    <p style="font-size: 0.75em; color: var(--text-muted); margin-bottom: 12px;">Unlock 8K Capture, Webcam Overlay & more.</p>
+                    <a href="#" id="upgrade-link" style="display: inline-block; background: var(--primary-blue); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8em; text-decoration: none; font-weight: 600;"><i class='bx bx-crown'></i> Upgrade Now</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header>
+                <h1 id="page-title">Capture Studio</h1>
+                <div class="status-indicator">
+                    <span class="dot"></span>
+                    <span>Ready</span>
+                </div>
+            </header>
+
+            <!-- CAPTURE VIEW -->
+            <section id="view-capture" class="view-section active">
+                <div class="controls-grid">
+                    <div class="card glass-card main-capture-card">
+                        <h3>Recording Engine</h3>
+                        <div class="setting-group">
+                            <label>Display Target</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="display-select" style="flex: 1;">
+                                    <option value="primary">Primary Monitor (Default)</option>
+                                </select>
+                                <button id="refresh-sources-btn" class="widget-btn" title="Refresh Sources"
+                                    style="width: auto; padding: 0 15px; border-radius: 8px; background: rgba(255,255,255,0.05); color: white;">
+                                    <i class='bx bx-refresh'></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label>Media Inputs</label>
+                            <div class="audio-toggles">
+                                <button class="toggle-btn active" id="mic-toggle"><i class='bx bx-microphone'></i> Mic</button>
+                                <button class="toggle-btn active" id="sys-audio-toggle"><i class='bx bx-desktop'></i> System Audio</button>
+                                <button class="toggle-btn" disabled style="opacity: 0.5; cursor: not-allowed;" title="Requires Pro"><i class='bx bx-lock-alt'></i> Webcam</button>
+                            </div>
+                        </div>
+                        <button class="primary-btn" id="main-record-btn">
+                            <i class='bx bx-record'></i> Start Capture
+                        </button>
+                    </div>
+
+                    <div class="card glass-card info-card">
+                        <h3>Capture Profile</h3>
+                        <ul class="integration-list">
+                            <li><i class='bx bx-check-circle'></i> Target: <span id="lbl-format">WebM (VP9)</span></li>
+                            <li><i class='bx bx-check-circle'></i> Framerate: <span id="lbl-fps">60 FPS</span></li>
+                            <li><i class='bx bx-check-circle'></i> Buffer: <span id="lbl-buffer">Off</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LIBRARY VIEW -->
+            <section id="view-library" class="view-section" style="display: none;">
+                <div class="card glass-card">
+                    <h3>Recent Recordings</h3>
+                    <div id="library-list" class="library-grid">
+                        <p style="color: var(--text-muted);">Recordings will appear here after capture.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS VIEW -->
+            <section id="view-settings" class="view-section" style="display: none;">
+                <div class="controls-grid">
+                    <div class="card glass-card">
+                        <h3>Video Settings</h3>
+                        <div class="setting-group">
+                            <label>Capture Quality</label>
+                            <select id="set-quality">
+                                <option value="1080p">Balanced (1080p Standard)</option>
+                                <option value="4k" disabled>Production Quality (4K) 🔒 PRO</option>
+                                <option value="8k" disabled>Screen Native (8K Max) 🔒 PRO</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label>Frame Rate</label>
+                            <select id="set-fps">
+                                <option value="60">60 FPS</option>
+                                <option value="30">30 FPS</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label>Output Format</label>
+                            <select id="set-format">
+                                <option value="webm">WebM (VP9)</option>
+                                <option value="mkv">MKV (H.264)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card glass-card">
+                        <h3>Advanced Options</h3>
+                        <div class="setting-group">
+                            <label>Pre-Save Buffer</label>
+                            <select id="set-buffer">
+                                <option value="0">Off (Direct Record)</option>
+                                <option value="30">30 Seconds</option>
+                                <option value="60">1 Minute</option>
+                            </select>
+                            <small style="color: var(--text-muted); display:block; margin-top:5px;">Continuously
+                                captures a rolling buffer.</small>
+                        </div>
+                        <div class="setting-group">
+                            <label>Hardware Acceleration</label>
+                            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                                <input type="checkbox" id="set-hw" checked> <label for="set-hw"
+                                    style="display:inline; margin:0;">Enable GPU Encoding</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
