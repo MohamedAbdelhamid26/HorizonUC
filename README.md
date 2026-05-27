@@ -2,12 +2,6 @@
 
 Welcome to the public source repository for Horizon UltraCapture. This codebase represents the free, community-preview version of the software.
 
-## 📸 App Previews
-
-Here is a look at HorizonUC in action:
-
-![HorizonUC Main Screen](assets/preview1.png)
-![HorizonUC Settings](assets/preview2.png)
 
 ### ⚠️ Copyright & Trademark Notice
 
