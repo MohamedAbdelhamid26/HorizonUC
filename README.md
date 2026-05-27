@@ -12,3 +12,8 @@ Copyright (c) 2026 Pegasus AI Corporate LLC. All Rights Reserved. This is propri
 The "Horizon" brand, the "Pegasus AI" brand, and all associated logos/icons are fiercely protected trademarks of Pegasus AI Corporate LLC. Do not reuse these visual assets.
 
 To access 4K/8K recording, Webcam overlays, and custom targeting, please purchase a Pro license from our official website.
+
+### Application Previews (Free Version)
+![Capture Studio](github_screenshots/real_capture_view.png)
+![Settings (Pro Features Locked)](github_screenshots/real_settings_view.png)
+![Recording Library](github_screenshots/real_library_view.png)
