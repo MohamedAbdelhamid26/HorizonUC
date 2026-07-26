@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Horizon UltraCapture</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+	<script>
+		(function () {
+			// Create a safe dummy element to catch broken listeners
+			const dummy = document.createElement('div');
+
+			// Intercept getElementById
+			const originalGetId = document.getElementById;
+			document.getElementById = function (id) {
+				const element = originalGetId.call(document, id);
+				if (!element) {
+					console.log('%c[Fix] Bypassed missing ID:', 'color: #ff9900; font-weight: bold;', id);
+					return dummy;
+				}
+				return element;
+			};
+
+			// Intercept querySelector just in case
+			const originalQuery = document.querySelector;
+			document.querySelector = function (selector) {
+				const element = originalQuery.call(document, selector);
+				if (!element) {
+					console.log('%c[Fix] Bypassed missing Selector:', 'color: #ff9900; font-weight: bold;', selector);
+					return dummy;
+				}
+				return element;
+			};
+			// 2. Link Hijacker patch
+			window.addEventListener('click', function (event) {
+				if (event.target && (event.target.textContent.includes('Upgrade') || event.target.id === 'upgrade-btn')) {
+					event.preventDefault();
+					event.stopImmediatePropagation();
+					const myWebsite = 'https://horizonuc.unaux.com'; // <-- Put your link here
+					try {
+						const { shell } = require('electron');
+						shell.openExternal(myWebsite);
+					} catch (e) {
+						window.open(myWebsite, '_blank');
+					}
+				}
+			}, true);
+		})();
+	</script>
+</head>
+
+<body class="free-edition">
+	<div class="ambient" aria-hidden="true">
+		<span class="orb orb-a"></span>
+		<span class="orb orb-b"></span>
+		<span class="orb orb-c"></span>
+		<span class="grid-veil"></span>
+	</div>
+
+	<div class="app-container glass-panel" id="app-shell">
+		<nav class="sidebar">
+			<div class="logo-area">
+				<div class="logo-icon">
+					<svg viewBox="0 0 26 26" fill="none" aria-hidden="true">
+						<g transform="rotate(-35 13 13)">
+							<rect x="3.5" y="5" width="7" height="16" rx="3.5" fill="#fff" />
+							<rect x="14" y="2.5" width="7" height="21" rx="3.5" fill="#fff" />
+						</g>
+					</svg>
+				</div>
+				<div class="logo-text">
+					<h2>Horizon</h2>
+					<span class="logo-sub">UltraCapture</span>
+				</div>
+				<button class="rail-toggle" id="rail-toggle" title="Collapse sidebar (Ctrl+B)" type="button">
+					<i class='bx bx-chevrons-left'></i>
+				</button>
+			</div>
+
+			<div class="nav-group-label">Workspace</div>
+			<ul class="nav-links">
+				<li class="active" data-target="view-capture" data-key="1"><i class='bx bx-camera-movie'></i> <span>Capture</span></li>
+				<li data-target="view-library" data-key="2"><i class='bx bx-library'></i> <span>Library</span></li>
+				<li data-target="view-settings" data-key="3"><i class='bx bx-cog'></i> <span>Settings</span></li>
+			</ul>
+
+			<div class="sidebar-foot">
+				<div class="license-card" id="license-card">
+					<div class="license-top">
+						<span class="license-badge" id="license-badge">Free</span>
+						<i class='bx bx-crown'></i>
+					</div>
+					<p id="license-note">Community preview. Unlock 4K / 8K capture and webcam overlay with Pro.</p>
+					<a href="#" id="upgrade-link" class="license-cta">Upgrade Now</a>
+				</div>
+				<button class="ghost-row" id="open-palette" type="button"><i class='bx bx-search-alt-2'></i> <span>Quick actions</span> <kbd>Ctrl K</kbd></button>
+				<div class="version-row"><span>v1.0.0 Free</span><span class="dot-sep"></span><span>Open source</span></div>
+			</div>
+		</nav>
+
+		<main class="main-content">
+			<header>
+				<div class="header-left">
+					<h1 id="page-title">Capture Studio</h1>
+					<p class="header-sub" id="header-sub">Configure your source, tune the engine and roll in one click.</p>
+				</div>
+				<div class="header-right">
+					<div class="session-clock" id="session-clock" hidden>
+						<span class="rec-dot"></span><span id="session-time">00:00:00</span>
+					</div>
+					<button class="icon-btn" id="theme-btn" type="button" title="Accent colour"><i class='bx bx-palette'></i></button>
+					<button class="icon-btn" id="shortcuts-btn" type="button" title="Keyboard shortcuts"><i class='bx bx-command'></i></button>
+					<div class="status-indicator">
+						<span class="dot"></span>
+						<span>Ready</span>
+					</div>
+				</div>
+			</header>
+
+			<!-- CAPTURE VIEW -->
+			<section id="view-capture" class="view-section active">
+				<div class="preset-rail" id="preset-rail">
+					<span class="rail-label"><i class='bx bx-bolt-circle'></i> Presets</span>
+					<button class="preset" data-preset="tutorial" type="button">Tutorial 1080p</button>
+					<button class="preset" data-preset="meeting" type="button">Meeting Lite</button>
+					<button class="preset" data-preset="podcast" type="button">Podcast Audio+</button>
+					<button class="preset locked" data-preset="youtube" data-pro="1" type="button"><i class='bx bx-lock-alt'></i> YouTube 4K60</button>
+					<button class="preset locked" data-preset="gameplay" data-pro="1" type="button"><i class='bx bx-lock-alt'></i> Gameplay 8K</button>
+				</div>
+
+				<div class="controls-grid">
+					<div class="card glass-card main-capture-card">
+						<h3><i class='bx bx-chip'></i> Recording Engine</h3>
+						<div class="setting-group">
+							<label>Display Target</label>
+							<div class="inline-row">
+								<select id="display-select">
+									<option value="primary">Primary Monitor (Default)</option>
+								</select>
+								<button id="refresh-sources-btn" class="widget-btn square" title="Refresh Sources">
+									<i class='bx bx-refresh'></i>
+								</button>
+							</div>
+							<small class="field-note">Free edition records the primary monitor. Specific window &amp; region targeting is a Pro feature.</small>
+						</div>
+						<div class="setting-group">
+							<label>Media Inputs</label>
+							<div class="audio-toggles">
+								<button class="toggle-btn active" id="mic-toggle"><i class='bx bx-microphone'></i> Mic</button>
+								<button class="toggle-btn active" id="sys-audio-toggle"><i class='bx bx-desktop'></i> System Audio</button>
+								<button class="toggle-btn locked" disabled title="Requires Pro"><i class='bx bx-lock-alt'></i> Webcam <em>Pro</em></button>
+							</div>
+						</div>
+
+						<div class="level-strip" id="level-strip">
+							<span class="level-title"><i class='bx bx-pulse'></i> Input levels</span>
+							<div class="meter" id="meter-mic"><span></span><small>Mic</small></div>
+							<div class="meter" id="meter-sys"><span></span><small>System</small></div>
+						</div>
+
+						<button class="primary-btn" id="main-record-btn">
+							<i class='bx bx-record'></i> Start Capture
+						</button>
+						<p class="btn-hint">Global hotkey <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> · Widget stays on top while you record</p>
+					</div>
+
+					<div class="side-stack">
+						<div class="card glass-card info-card">
+							<h3><i class='bx bx-slider-alt'></i> Capture Profile</h3>
+							<ul class="integration-list">
+								<li><i class='bx bx-check-circle'></i> Target: <span id="lbl-format">WebM (VP9)</span></li>
+								<li><i class='bx bx-check-circle'></i> Framerate: <span id="lbl-fps">60 FPS</span></li>
+								<li><i class='bx bx-check-circle'></i> Buffer: <span id="lbl-buffer">Off</span></li>
+							</ul>
+						</div>
+
+						<div class="card glass-card estimate-card">
+							<h3><i class='bx bx-hdd'></i> Disk Forecast</h3>
+							<div class="estimate-figure"><strong id="est-rate">—</strong><span>per hour</span></div>
+							<div class="estimate-bar"><span id="est-bar"></span></div>
+							<ul class="estimate-list">
+								<li>Bitrate <span id="est-bitrate">—</span></li>
+								<li>10 min clip <span id="est-ten">—</span></li>
+								<li>Encoder <span id="est-encoder">GPU</span></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- LIBRARY VIEW -->
+			<section id="view-library" class="view-section" style="display: none;">
+				<div class="card glass-card">
+					<div class="card-head">
+						<h3><i class='bx bx-collection'></i> Recent Recordings</h3>
+						<div class="card-tools">
+							<div class="search-field">
+								<i class='bx bx-search'></i>
+								<input type="text" id="library-search" placeholder="Search recordings">
+							</div>
+							<button class="icon-btn" id="library-layout" type="button" title="Toggle grid / list"><i class='bx bx-list-ul'></i></button>
+						</div>
+					</div>
+					<div id="library-list" class="library-grid">
+						<p class="empty-state"><i class='bx bx-movie-play'></i> Recordings will appear here after capture.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- SETTINGS VIEW -->
+			<section id="view-settings" class="view-section" style="display: none;">
+				<div class="settings-toolbar">
+					<div class="search-field wide">
+						<i class='bx bx-search'></i>
+						<input type="text" id="settings-search" placeholder="Search settings — quality, fps, buffer, camera…">
+					</div>
+				</div>
+				<div class="controls-grid settings-grid">
+					<div class="card glass-card" data-keywords="video quality resolution fps framerate format webm mkv codec">
+						<h3><i class='bx bx-movie'></i> Video Settings</h3>
+						<div class="setting-group">
+							<label>Capture Quality</label>
+							<select id="set-quality">
+								<option value="1080p">Balanced (1080p Standard)</option>
+								<option value="4k" disabled>Production Quality (4K) 🔒 PRO</option>
+								<option value="8k" disabled>Screen Native (8K Max) 🔒 PRO</option>
+							</select>
+							<small class="field-note">Free edition is capped at 1080p.</small>
+						</div>
+						<div class="setting-group">
+							<label>Frame Rate</label>
+							<select id="set-fps">
+								<option value="60">60 FPS</option>
+								<option value="30">30 FPS</option>
+							</select>
+						</div>
+						<div class="setting-group">
+							<label>Output Format</label>
+							<select id="set-format">
+								<option value="webm">WebM (VP9)</option>
+								<option value="mkv">MKV (H.264)</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="card glass-card" data-keywords="advanced buffer replay gpu hardware acceleration encoding">
+						<h3><i class='bx bx-rocket'></i> Advanced Options</h3>
+						<div class="setting-group">
+							<label>Pre-Save Buffer</label>
+							<select id="set-buffer">
+								<option value="0">Off (Direct Record)</option>
+								<option value="30">30 Seconds</option>
+								<option value="60">1 Minute</option>
+							</select>
+							<small>Continuously captures a rolling buffer so you never miss the moment.</small>
+						</div>
+						<div class="setting-group">
+							<label>Hardware Acceleration</label>
+							<label class="switch-row" for="set-hw">
+								<input type="checkbox" id="set-hw" checked>
+								<span class="switch"></span>
+								<span class="switch-text">Enable GPU Encoding</span>
+							</label>
+						</div>
+					</div>
+
+					<div class="card glass-card locked-card" data-keywords="camera webcam overlay position device pro picture in picture">
+						<h3><i class='bx bx-webcam'></i> Camera Options <em class="pro-tag">Pro</em></h3>
+						<div class="setting-group">
+							<label>Webcam Device</label>
+							<select id="set-cam-device" disabled>
+								<option value="default">Default Camera</option>
+							</select>
+						</div>
+						<div class="setting-group">
+							<label>Overlay Position</label>
+							<select id="set-cam-position" disabled>
+								<option value="br">Bottom Right</option>
+								<option value="tr">Top Right</option>
+								<option value="bl">Bottom Left</option>
+								<option value="tl">Top Left</option>
+							</select>
+							<div class="pip-preview" id="pip-preview" data-pos="br"><span class="pip-dot"></span></div>
+						</div>
+						<a href="#" class="license-cta small">Upgrade to unlock</a>
+					</div>
+
+					<div class="card glass-card" data-keywords="appearance accent theme colour color interface motion">
+						<h3><i class='bx bx-brush'></i> Appearance</h3>
+						<div class="setting-group">
+							<label>Accent</label>
+							<div class="swatch-row" id="swatch-row">
+								<button class="swatch active" data-accent="violet" style="--sw:#7c3aed" type="button" title="Violet"></button>
+								<button class="swatch" data-accent="azure" style="--sw:#3b82f6" type="button" title="Azure"></button>
+								<button class="swatch" data-accent="cyan" style="--sw:#06b6d4" type="button" title="Cyan"></button>
+								<button class="swatch" data-accent="ember" style="--sw:#f97316" type="button" title="Ember"></button>
+								<button class="swatch" data-accent="mint" style="--sw:#10b981" type="button" title="Mint"></button>
+							</div>
+						</div>
+						<div class="setting-group">
+							<label>Motion</label>
+							<label class="switch-row" for="set-motion">
+								<input type="checkbox" id="set-motion" checked>
+								<span class="switch"></span>
+								<span class="switch-text">Ambient background animation</span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<!-- Command palette -->
+	<div class="overlay" id="palette-overlay" hidden>
+		<div class="palette" role="dialog" aria-label="Quick actions">
+			<div class="palette-input">
+				<i class='bx bx-search-alt-2'></i>
+				<input type="text" id="palette-input" placeholder="Type a command…" spellcheck="false">
+				<kbd>Esc</kbd>
+			</div>
+			<ul class="palette-list" id="palette-list"></ul>
+		</div>
+	</div>
+
+	<!-- Shortcut sheet -->
+	<div class="overlay" id="shortcut-overlay" hidden>
+		<div class="sheet" role="dialog" aria-label="Keyboard shortcuts">
+			<div class="sheet-head">
+				<h3>Keyboard shortcuts</h3>
+				<button class="icon-btn" id="shortcut-close" type="button"><i class='bx bx-x'></i></button>
+			</div>
+			<ul class="shortcut-list">
+				<li><span>Quick actions</span><kbd>Ctrl K</kbd></li>
+				<li><span>Start / stop capture</span><kbd>Ctrl Shift R</kbd></li>
+				<li><span>Collapse sidebar</span><kbd>Ctrl B</kbd></li>
+				<li><span>Capture / Library / Settings</span><kbd>1 – 3</kbd></li>
+				<li><span>Toggle microphone</span><kbd>M</kbd></li>
+				<li><span>Toggle system audio</span><kbd>S</kbd></li>
+				<li><span>Refresh sources</span><kbd>R</kbd></li>
+				<li><span>This sheet</span><kbd>?</kbd></li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- Countdown -->
+	<div class="countdown" id="countdown" hidden><span id="countdown-num">3</span></div>
+
+	<div class="toast-stack" id="toast-stack"></div>
+
+	<div id="open-dashboard" style="display:none;"></div>
+	<script src="app.js"></script>
+	<script src="enhance.js"></script>
+</body>
+
+</html>

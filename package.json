@@ -1,0 +1,59 @@
+{
+	"name": "horizonuc",
+	"productName": "HorizonUC",
+	"version": "1.1.0",
+	"description": "Horizon UltraCapture — free community edition. Screen capture up to 1080p with system audio mixing and GPU-accelerated encoding.",
+	"main": "main.js",
+	"type": "commonjs",
+	"author": "Pegasus AI Corporate LLC",
+	"license": "SEE LICENSE IN LICENSE",
+	"homepage": "https://horizonuc.unaux.com",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/MohamedAbdelhamid26/HorizonUC.git"
+	},
+	"scripts": {
+		"start": "electron .",
+		"pack": "electron-builder --dir",
+		"dist": "electron-builder"
+	},
+	"build": {
+		"productName": "HorizonUC",
+		"appId": "com.horizon.ultracapture.free",
+		"icon": "build/icon.png",
+		"directories": {
+			"output": "dist2"
+		},
+		"files": [
+			"main.js",
+			"app.js",
+			"enhance.js",
+			"index.html",
+			"widget.html",
+			"styles.css",
+			"icon.png",
+			"logo-mark.png",
+			"pegasus_logo.png",
+			"package.json"
+		],
+		"win": {
+			"icon": "build/icon.ico",
+			"target": [
+				"nsis",
+				"portable"
+			]
+		},
+		"nsis": {
+			"oneClick": false,
+			"perMachine": true,
+			"allowToChangeInstallationDirectory": true,
+			"createDesktopShortcut": true,
+			"createStartMenuShortcut": true,
+			"runAfterFinish": true
+		}
+	},
+	"devDependencies": {
+		"electron": "^42.2.0",
+		"electron-builder": "^26.8.1"
+	}
+}

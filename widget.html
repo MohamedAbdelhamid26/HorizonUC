@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        html, body {
+            background-color: transparent !important;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Align right */
+            padding-right: 20px;
+        }
+        
+        .widget-pill {
+            background: rgba(12, 12, 29, 0.82);
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 40px;
+            font-family: 'Inter', system-ui, sans-serif;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            width: 60px; /* Collapsed */
+            height: 60px;
+            box-sizing: border-box;
+            transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6), 0 0 40px rgba(124, 58, 237, 0.28);
+            cursor: grab;
+        }
+
+        /* brand gradient hairline */
+        .widget-pill::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 40px;
+            padding: 1px;
+            background: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+        
+        .widget-pill:hover, .widget-pill.menu-open {
+            width: 260px; /* Expanded */
+        }
+        
+        .widget-pill:active {
+            cursor: grabbing;
+        }
+
+        .icon-container {
+            min-width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4);
+            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 2px solid transparent;
+        }
+        
+        .icon-container.recording {
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #ff3366, #f97316);
+            box-shadow: 0 6px 18px rgba(255, 51, 102, 0.5);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 51, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+        }
+
+        .menu-items {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .widget-pill:hover .menu-items, .widget-pill.menu-open .menu-items {
+            opacity: 1;
+            transition-delay: 0.1s;
+        }
+
+        .widget-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.07);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .widget-btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #3b82f6, #06b6d4);
+            border-color: transparent;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        
+        .widget-btn.danger:hover {
+            background: linear-gradient(135deg, #ff3366, #f97316);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-pill" id="widget-pill">
+        <div class="icon-container" id="widget-icon" title="Click to Record">
+            <i class='bx bx-aperture'></i>
+        </div>
+        <div class="menu-items">
+            <button class="widget-btn" id="stop-btn" title="Stop Capture"><i class='bx bx-stop-circle'></i></button>
+            <button class="widget-btn" id="mute-btn" title="Toggle Mic"><i class='bx bx-microphone'></i></button>
+            <button class="widget-btn" id="settings-btn" title="Settings"><i class='bx bx-slider'></i></button>
+            <button class="widget-btn danger" id="exit-btn" title="Quit App"><i class='bx bx-power-off'></i></button>
+        </div>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+        const widgetPill = document.getElementById('widget-pill');
+        const widgetIcon = document.getElementById('widget-icon');
+        const settingsBtn = document.getElementById('settings-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        
+        let isRecording = false;
+        let isMuted = false;
+
+        // Perfect JS Dragging via IPC
+        let isDragging = false;
+        let hasMoved = false;
+        let startPos = { x: 0, y: 0 };
+        
+        widgetPill.addEventListener('pointerdown', (e) => {
+            // Don't drag if clicking a button
+            if (e.target.closest('.widget-btn')) return;
+            
+            isDragging = true;
+            hasMoved = false;
+            startPos = { x: e.screenX, y: e.screenY };
+            widgetPill.setPointerCapture(e.pointerId);
+        });
+        
+        widgetPill.addEventListener('pointermove', (e) => {
+            if (isDragging) {
+                const deltaX = e.screenX - startPos.x;
+                const deltaY = e.screenY - startPos.y;
+                if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+                    hasMoved = true;
+                }
+                if (deltaX !== 0 || deltaY !== 0) {
+                    ipcRenderer.send('move-widget', { x: deltaX, y: deltaY });
+                    startPos = { x: e.screenX, y: e.screenY };
+                }
+            }
+        });
+        
+        widgetPill.addEventListener('pointerup', (e) => { 
+            isDragging = false; 
+            widgetPill.releasePointerCapture(e.pointerId);
+            
+            // Trigger record if it was a clean click on the icon container area
+            if (!hasMoved && !e.target.closest('.widget-btn')) {
+                isRecording = !isRecording;
+                ipcRenderer.send('toggle-recording', isRecording);
+                updateUI(isRecording);
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if(isRecording) {
+                isRecording = false;
+                ipcRenderer.send('toggle-recording', false);
+                updateUI(false);
+            }
+        });
+
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            ipcRenderer.send('toggle-mute', isMuted);
+            muteBtn.innerHTML = isMuted ? "<i class='bx bx-microphone-off'></i>" : "<i class='bx bx-microphone'></i>";
+            muteBtn.style.color = isMuted ? "#FF3366" : "white";
+        });
+
+        settingsBtn.addEventListener('click', () => {
+            ipcRenderer.send('open-dashboard', 'settings');
+        });
+
+        exitBtn.addEventListener('click', () => {
+            ipcRenderer.send('quit-app');
+        });
+
+        ipcRenderer.on('toggle-recording', (event, state) => {
+            isRecording = state;
+            updateUI(isRecording);
+        });
+
+        function updateUI(recording) {
+            if(recording) {
+                widgetIcon.classList.add('recording');
+                widgetIcon.innerHTML = "<i class='bx bx-stop'></i>";
+            } else {
+                widgetIcon.classList.remove('recording');
+                widgetIcon.innerHTML = "<i class='bx bx-aperture'></i>";
+            }
+        }
+    </script>
+</body>
+</html>
